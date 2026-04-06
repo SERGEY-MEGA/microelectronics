@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "author": "SERGEY-MEGA/microelectronics",
+  "editor": "wokwi",
+  "parts": [
+    {
+      "type": "wokwi-arduino-uno",
+      "id": "uno",
+      "left": 80,
+      "top": 60
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "btn1",
+      "left": 80,
+      "top": 280,
+      "attrs": {
+        "color": "yellow",
+        "label": "CRC D2",
+        "key": "c"
+      }
+    }
+  ],
+  "connections": [
+    [
+      "uno:2",
+      "btn1:1.r",
+      "green",
+      []
+    ],
+    [
+      "btn1:2.r",
+      "uno:GND.1",
+      "black",
+      []
+    ]
+  ],
+  "serialMonitor": {
+    "display": "always",
+    "newline": "none",
+    "collapse": false
+  }
+}

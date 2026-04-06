@@ -17,6 +17,12 @@
 - `deliverables/word-reports/assets` - изображения, схемы и иллюстрации для отчетов
 - `deliverables/word-reports/README.md` - краткая памятка по готовому комплекту
 
+### Готовые симуляции в браузере (Wokwi, без Proteus)
+
+- `deliverables/wokwi-simulations/` - в каждой подпапке готовые `diagram.json` + `sketch.ino` для [Wokwi](https://wokwi.com); открываете в браузере, вставляете файлы — показываете работу с экрана
+- `deliverables/wokwi-simulations/README.md` - пошаговая инструкция
+- `scripts/build_wokwi_simulations.py` - пересборка схем и копий скетчей из `labs/` после правок
+
 ### Готовый пакет для Proteus 8.13 и Arduino IDE
 
 - `deliverables/proteus-arduino/arduino-ide` - готовые папки скетчей для открытия в Arduino IDE

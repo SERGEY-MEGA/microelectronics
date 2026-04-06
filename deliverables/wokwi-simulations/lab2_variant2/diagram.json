@@ -1,0 +1,69 @@
+{
+  "version": 1,
+  "author": "SERGEY-MEGA/microelectronics",
+  "editor": "wokwi",
+  "parts": [
+    {
+      "type": "wokwi-arduino-uno",
+      "id": "uno",
+      "left": 40,
+      "top": 40
+    },
+    {
+      "type": "wokwi-potentiometer",
+      "id": "pot1",
+      "left": 380,
+      "top": 40,
+      "attrs": {
+        "value": "512"
+      }
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "btn1",
+      "left": 40,
+      "top": 280,
+      "attrs": {
+        "color": "green",
+        "label": "SAMPLE D2",
+        "key": "m"
+      }
+    }
+  ],
+  "connections": [
+    [
+      "uno:5V",
+      "pot1:VCC",
+      "red",
+      []
+    ],
+    [
+      "pot1:GND",
+      "uno:GND.1",
+      "black",
+      []
+    ],
+    [
+      "pot1:SIG",
+      "uno:A0",
+      "orange",
+      []
+    ],
+    [
+      "uno:2",
+      "btn1:1.r",
+      "green",
+      []
+    ],
+    [
+      "btn1:2.r",
+      "uno:GND.2",
+      "black",
+      []
+    ]
+  ],
+  "serialMonitor": {
+    "display": "always",
+    "collapse": false
+  }
+}
