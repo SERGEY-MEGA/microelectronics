@@ -1,7 +1,7 @@
 #include <Arduino.h>
 
-const uint8_t FASTER_BUTTON_PIN = 2;
-const uint8_t SLOWER_BUTTON_PIN = 3;
+const uint8_t SLOWER_BUTTON_PIN = 2;
+const uint8_t FASTER_BUTTON_PIN = 3;
 const uint8_t PORTB_LED_MASK = 0b00111111;
 const unsigned long DEBOUNCE_DELAY_MS = 50;
 const unsigned long MIN_STEP_DELAY_MS = 50;

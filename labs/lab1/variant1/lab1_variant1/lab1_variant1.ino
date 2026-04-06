@@ -31,7 +31,9 @@ void handleIncrementButton() {
     incrementStableState = reading;
 
     if (incrementStableState == LOW) {
-      counterValue = (counterValue + 1) & PORTB_LED_MASK;
+      if (counterValue < PORTB_LED_MASK) {
+        counterValue++;
+      }
       outputValueToPortB(counterValue);
     }
   }
@@ -49,7 +51,9 @@ void handleDecrementButton() {
     decrementStableState = reading;
 
     if (decrementStableState == LOW) {
-      counterValue = (counterValue - 1) & PORTB_LED_MASK;
+      if (counterValue > 0) {
+        counterValue--;
+      }
       outputValueToPortB(counterValue);
     }
   }
