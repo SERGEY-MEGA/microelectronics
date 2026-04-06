@@ -1,0 +1,4 @@
+LM35 VCC -> 5V
+LM35 VOUT -> A0
+LM35 GND -> GND
+START -> D2, кнопка на GND

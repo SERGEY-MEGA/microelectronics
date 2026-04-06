@@ -1,0 +1,3 @@
+BUTTON -> D2, кнопка на GND
+UART -> USB/Serial
+Serial Monitor -> 9600, No line ending

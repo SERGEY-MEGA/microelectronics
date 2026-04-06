@@ -17,6 +17,12 @@
 - `deliverables/word-reports/assets` - изображения, схемы и иллюстрации для отчетов
 - `deliverables/word-reports/README.md` - краткая памятка по готовому комплекту
 
+### Готовый пакет для Proteus 8.13 и Arduino IDE
+
+- `deliverables/proteus-arduino/arduino-ide` - готовые папки скетчей для открытия в Arduino IDE
+- `deliverables/proteus-arduino/proteus` - готовые `HEX`-файлы для загрузки в Proteus 8.13
+- `deliverables/proteus-arduino/README.md` - инструкция, какой файл куда загружать
+
 ### Исходные материалы лабораторных
 
 - `labs/lab1` - ЛР1, оба варианта
