@@ -24,6 +24,16 @@
 - `proteus/lab3_crc8_accumulate/lab3_crc8_accumulate.hex`
 - `proteus/lab4_variant2/lab4_variant2.hex`
 
+## Готовые схемы для сборки в Proteus
+
+- `schemes/lab1_variant1.md`
+- `schemes/lab1_variant2.md`
+- `schemes/lab2_variant1.md`
+- `schemes/lab2_variant2.md`
+- `schemes/lab3_crc8_reset.md`
+- `schemes/lab3_crc8_accumulate.md`
+- `schemes/lab4_variant2.md`
+
 ## Как использовать в Proteus
 
 1. Добавьте на схему `Arduino UNO R3`.
