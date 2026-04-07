@@ -1,0 +1,126 @@
+<circuit version="1.0.0" rev="1199" stepSize="1000000" stepsPS="1000000" NLsteps="100000" reaStep="1000000" animate="1" >
+
+<item itemtype="Subcircuit" CircId="Uno-1" mainComp="false" Show_id="true" Show_Val="false" Pos="-640,-420" rotation="0" hflip="1" vflip="1" label="Arduino Uno-1" idLabPos="58,-9" labelrot="0" valLabPos="0,0" valLabRot="0" Logic_Symbol="false">
+<mainCompProps itemtype="MCU" CircId="1_mega328-109" mainComp="true" Show_id="false" Show_Val="false" Pos="20,20" rotation="0" hflip="1" vflip="1" label="1_mega328-109" idLabPos="0,-20" labelrot="0" valLabPos="-16,20" valLabRot="0" Frequency="16 MHz" Program="lab4_variant2.hex" Auto_Load="false" Rst_enabled="true" Ext_Osc="true" Wdt_enabled="false" />
+</item>
+
+<item itemtype="TextComponent" CircId="Text-1" mainComp="false" Show_id="false" Show_Val="false" Pos="-930,-330" rotation="0" hflip="1" vflip="1" label="Text-1" idLabPos="-16,-24" labelrot="0" valLabPos="0,0" valLabRot="0" Border="1" Margin="4" Font="Helvetica [Cronyx]" Font_Size="10" Fixed_Width="false" Opacity="1" Text="ЛР4 вариант 2&#xa;Меняйте освещенность LDR&#xa;Количество LED зависит от A0" />
+
+<item itemtype="Rail" CircId="Rail-1" mainComp="false" ShowProp="Voltage" Show_id="false" Show_Val="true" Pos="-330,-560" rotation="90" hflip="1" vflip="1" label="Rail-1" idLabPos="-64,-24" labelrot="0" valLabPos="-24,4" valLabRot="-90" Voltage="5 V" />
+
+<item itemtype="LDR" CircId="LDR-1" mainComp="false" ShowProp="Lux" Show_id="true" Show_Val="true" Pos="-330,-500" rotation="90" hflip="1" vflip="1" label="LDR-1" idLabPos="-20,-24" labelrot="0" valLabPos="-20,30" valLabRot="0" Lux="500 Lux" Min_Lux="0 Lux" Max_Lux="1000 Lux" Dial_Step="0 Lux" Gamma="0.8582" R1="127410 Ω" />
+
+<item itemtype="Resistor" CircId="Resistor-ldr" mainComp="false" ShowProp="Resistance" Show_id="false" Show_Val="true" Pos="-330,-400" rotation="90" hflip="1" vflip="1" label="Resistor-ldr" idLabPos="-16,-24" labelrot="0" valLabPos="-18,8" valLabRot="0" Resistance="10 kΩ" />
+
+<item itemtype="Ground" CircId="Ground-ldr" mainComp="false" Show_id="false" Show_Val="false" Pos="-330,-320" rotation="0" hflip="1" vflip="1" label="Ground-ldr" idLabPos="-16,-24" labelrot="0" valLabPos="0,0" valLabRot="0" />
+
+<item itemtype="Node" CircId="Node-a0" mainComp="false" Pos="-330,-448" />
+
+<item itemtype="Connector" uid="Connector-ldr-vcc" startpinid="Rail-1-outnod" endpinid="LDR-1-lPin" pointList="-330,-544,-330,-516" />
+
+<item itemtype="Connector" uid="Connector-ldr-a0" startpinid="LDR-1-rPin" endpinid="Node-a0-0" pointList="-330,-484,-330,-448" />
+
+<item itemtype="Connector" uid="Connector-res-a0" startpinid="Resistor-ldr-lPin" endpinid="Node-a0-1" pointList="-330,-416,-330,-448" />
+
+<item itemtype="Connector" uid="Connector-res-gnd" startpinid="Resistor-ldr-rPin" endpinid="Ground-ldr-Gnd" pointList="-330,-384,-330,-336" />
+
+<item itemtype="Connector" uid="Connector-a0-uno" startpinid="Node-a0-2" endpinid="Uno-1-A0" pointList="-330,-448,-612,-448,-612,-236" />
+
+<item itemtype="Resistor" CircId="Resistor-1" mainComp="false" ShowProp="Resistance" Show_id="false" Show_Val="true" Pos="-200,-580" rotation="0" hflip="1" vflip="1" label="Resistor-1" idLabPos="-16,-24" labelrot="0" valLabPos="-18,8" valLabRot="0" Resistance="220 Ω" />
+
+<item itemtype="Led" CircId="LED1" mainComp="false" Show_id="true" Show_Val="false" Pos="-80,-580" rotation="0" hflip="1" vflip="1" label="LED1" idLabPos="-16,-24" labelrot="0" valLabPos="0,0" valLabRot="0" Color="Red" Grounded="false" Threshold="2.4 V" MaxCurrent="0.03 A" Resistance="0.6 Ω" />
+
+<item itemtype="Ground" CircId="Ground-led1" mainComp="false" Show_id="false" Show_Val="false" Pos="20,-564" rotation="0" hflip="1" vflip="1" label="Ground-led1" idLabPos="-16,-24" labelrot="0" valLabPos="0,0" valLabRot="0" />
+
+<item itemtype="Connector" uid="Connector-led-src-0" startpinid="Uno-1-6" endpinid="Resistor-1-lPin" pointList="-612,-576,-320,-576,-320,-580,-216,-580" />
+
+<item itemtype="Connector" uid="Connector-led-mid-0" startpinid="Resistor-1-rPin" endpinid="LED1-lPin" pointList="-184,-580,-96,-580" />
+
+<item itemtype="Connector" uid="Connector-led-gnd-0" startpinid="LED1-rPin" endpinid="Ground-led1-Gnd" pointList="-64,-580,20,-580,20,-564" />
+
+<item itemtype="Resistor" CircId="Resistor-2" mainComp="false" ShowProp="Resistance" Show_id="false" Show_Val="true" Pos="-200,-540" rotation="0" hflip="1" vflip="1" label="Resistor-2" idLabPos="-16,-24" labelrot="0" valLabPos="-18,8" valLabRot="0" Resistance="220 Ω" />
+
+<item itemtype="Led" CircId="LED2" mainComp="false" Show_id="true" Show_Val="false" Pos="-80,-540" rotation="0" hflip="1" vflip="1" label="LED2" idLabPos="-16,-24" labelrot="0" valLabPos="0,0" valLabRot="0" Color="Red" Grounded="false" Threshold="2.4 V" MaxCurrent="0.03 A" Resistance="0.6 Ω" />
+
+<item itemtype="Ground" CircId="Ground-led2" mainComp="false" Show_id="false" Show_Val="false" Pos="20,-524" rotation="0" hflip="1" vflip="1" label="Ground-led2" idLabPos="-16,-24" labelrot="0" valLabPos="0,0" valLabRot="0" />
+
+<item itemtype="Connector" uid="Connector-led-src-1" startpinid="Uno-1-7" endpinid="Resistor-2-lPin" pointList="-612,-536,-320,-536,-320,-540,-216,-540" />
+
+<item itemtype="Connector" uid="Connector-led-mid-1" startpinid="Resistor-2-rPin" endpinid="LED2-lPin" pointList="-184,-540,-96,-540" />
+
+<item itemtype="Connector" uid="Connector-led-gnd-1" startpinid="LED2-rPin" endpinid="Ground-led2-Gnd" pointList="-64,-540,20,-540,20,-524" />
+
+<item itemtype="Resistor" CircId="Resistor-3" mainComp="false" ShowProp="Resistance" Show_id="false" Show_Val="true" Pos="-200,-500" rotation="0" hflip="1" vflip="1" label="Resistor-3" idLabPos="-16,-24" labelrot="0" valLabPos="-18,8" valLabRot="0" Resistance="220 Ω" />
+
+<item itemtype="Led" CircId="LED3" mainComp="false" Show_id="true" Show_Val="false" Pos="-80,-500" rotation="0" hflip="1" vflip="1" label="LED3" idLabPos="-16,-24" labelrot="0" valLabPos="0,0" valLabRot="0" Color="Red" Grounded="false" Threshold="2.4 V" MaxCurrent="0.03 A" Resistance="0.6 Ω" />
+
+<item itemtype="Ground" CircId="Ground-led3" mainComp="false" Show_id="false" Show_Val="false" Pos="20,-484" rotation="0" hflip="1" vflip="1" label="Ground-led3" idLabPos="-16,-24" labelrot="0" valLabPos="0,0" valLabRot="0" />
+
+<item itemtype="Connector" uid="Connector-led-src-2" startpinid="Uno-1-8" endpinid="Resistor-3-lPin" pointList="-612,-496,-320,-496,-320,-500,-216,-500" />
+
+<item itemtype="Connector" uid="Connector-led-mid-2" startpinid="Resistor-3-rPin" endpinid="LED3-lPin" pointList="-184,-500,-96,-500" />
+
+<item itemtype="Connector" uid="Connector-led-gnd-2" startpinid="LED3-rPin" endpinid="Ground-led3-Gnd" pointList="-64,-500,20,-500,20,-484" />
+
+<item itemtype="Resistor" CircId="Resistor-4" mainComp="false" ShowProp="Resistance" Show_id="false" Show_Val="true" Pos="-200,-460" rotation="0" hflip="1" vflip="1" label="Resistor-4" idLabPos="-16,-24" labelrot="0" valLabPos="-18,8" valLabRot="0" Resistance="220 Ω" />
+
+<item itemtype="Led" CircId="LED4" mainComp="false" Show_id="true" Show_Val="false" Pos="-80,-460" rotation="0" hflip="1" vflip="1" label="LED4" idLabPos="-16,-24" labelrot="0" valLabPos="0,0" valLabRot="0" Color="Red" Grounded="false" Threshold="2.4 V" MaxCurrent="0.03 A" Resistance="0.6 Ω" />
+
+<item itemtype="Ground" CircId="Ground-led4" mainComp="false" Show_id="false" Show_Val="false" Pos="20,-444" rotation="0" hflip="1" vflip="1" label="Ground-led4" idLabPos="-16,-24" labelrot="0" valLabPos="0,0" valLabRot="0" />
+
+<item itemtype="Connector" uid="Connector-led-src-3" startpinid="Uno-1-9" endpinid="Resistor-4-lPin" pointList="-612,-456,-320,-456,-320,-460,-216,-460" />
+
+<item itemtype="Connector" uid="Connector-led-mid-3" startpinid="Resistor-4-rPin" endpinid="LED4-lPin" pointList="-184,-460,-96,-460" />
+
+<item itemtype="Connector" uid="Connector-led-gnd-3" startpinid="LED4-rPin" endpinid="Ground-led4-Gnd" pointList="-64,-460,20,-460,20,-444" />
+
+<item itemtype="Resistor" CircId="Resistor-5" mainComp="false" ShowProp="Resistance" Show_id="false" Show_Val="true" Pos="-200,-420" rotation="0" hflip="1" vflip="1" label="Resistor-5" idLabPos="-16,-24" labelrot="0" valLabPos="-18,8" valLabRot="0" Resistance="220 Ω" />
+
+<item itemtype="Led" CircId="LED5" mainComp="false" Show_id="true" Show_Val="false" Pos="-80,-420" rotation="0" hflip="1" vflip="1" label="LED5" idLabPos="-16,-24" labelrot="0" valLabPos="0,0" valLabRot="0" Color="Red" Grounded="false" Threshold="2.4 V" MaxCurrent="0.03 A" Resistance="0.6 Ω" />
+
+<item itemtype="Ground" CircId="Ground-led5" mainComp="false" Show_id="false" Show_Val="false" Pos="20,-404" rotation="0" hflip="1" vflip="1" label="Ground-led5" idLabPos="-16,-24" labelrot="0" valLabPos="0,0" valLabRot="0" />
+
+<item itemtype="Connector" uid="Connector-led-src-4" startpinid="Uno-1-10" endpinid="Resistor-5-lPin" pointList="-612,-416,-320,-416,-320,-420,-216,-420" />
+
+<item itemtype="Connector" uid="Connector-led-mid-4" startpinid="Resistor-5-rPin" endpinid="LED5-lPin" pointList="-184,-420,-96,-420" />
+
+<item itemtype="Connector" uid="Connector-led-gnd-4" startpinid="LED5-rPin" endpinid="Ground-led5-Gnd" pointList="-64,-420,20,-420,20,-404" />
+
+<item itemtype="Resistor" CircId="Resistor-6" mainComp="false" ShowProp="Resistance" Show_id="false" Show_Val="true" Pos="-200,-380" rotation="0" hflip="1" vflip="1" label="Resistor-6" idLabPos="-16,-24" labelrot="0" valLabPos="-18,8" valLabRot="0" Resistance="220 Ω" />
+
+<item itemtype="Led" CircId="LED6" mainComp="false" Show_id="true" Show_Val="false" Pos="-80,-380" rotation="0" hflip="1" vflip="1" label="LED6" idLabPos="-16,-24" labelrot="0" valLabPos="0,0" valLabRot="0" Color="Red" Grounded="false" Threshold="2.4 V" MaxCurrent="0.03 A" Resistance="0.6 Ω" />
+
+<item itemtype="Ground" CircId="Ground-led6" mainComp="false" Show_id="false" Show_Val="false" Pos="20,-364" rotation="0" hflip="1" vflip="1" label="Ground-led6" idLabPos="-16,-24" labelrot="0" valLabPos="0,0" valLabRot="0" />
+
+<item itemtype="Connector" uid="Connector-led-src-5" startpinid="Uno-1-11" endpinid="Resistor-6-lPin" pointList="-612,-376,-320,-376,-320,-380,-216,-380" />
+
+<item itemtype="Connector" uid="Connector-led-mid-5" startpinid="Resistor-6-rPin" endpinid="LED6-lPin" pointList="-184,-380,-96,-380" />
+
+<item itemtype="Connector" uid="Connector-led-gnd-5" startpinid="LED6-rPin" endpinid="Ground-led6-Gnd" pointList="-64,-380,20,-380,20,-364" />
+
+<item itemtype="Resistor" CircId="Resistor-7" mainComp="false" ShowProp="Resistance" Show_id="false" Show_Val="true" Pos="-200,-340" rotation="0" hflip="1" vflip="1" label="Resistor-7" idLabPos="-16,-24" labelrot="0" valLabPos="-18,8" valLabRot="0" Resistance="220 Ω" />
+
+<item itemtype="Led" CircId="LED7" mainComp="false" Show_id="true" Show_Val="false" Pos="-80,-340" rotation="0" hflip="1" vflip="1" label="LED7" idLabPos="-16,-24" labelrot="0" valLabPos="0,0" valLabRot="0" Color="Red" Grounded="false" Threshold="2.4 V" MaxCurrent="0.03 A" Resistance="0.6 Ω" />
+
+<item itemtype="Ground" CircId="Ground-led7" mainComp="false" Show_id="false" Show_Val="false" Pos="20,-324" rotation="0" hflip="1" vflip="1" label="Ground-led7" idLabPos="-16,-24" labelrot="0" valLabPos="0,0" valLabRot="0" />
+
+<item itemtype="Connector" uid="Connector-led-src-6" startpinid="Uno-1-12" endpinid="Resistor-7-lPin" pointList="-612,-336,-320,-336,-320,-340,-216,-340" />
+
+<item itemtype="Connector" uid="Connector-led-mid-6" startpinid="Resistor-7-rPin" endpinid="LED7-lPin" pointList="-184,-340,-96,-340" />
+
+<item itemtype="Connector" uid="Connector-led-gnd-6" startpinid="LED7-rPin" endpinid="Ground-led7-Gnd" pointList="-64,-340,20,-340,20,-324" />
+
+<item itemtype="Resistor" CircId="Resistor-8" mainComp="false" ShowProp="Resistance" Show_id="false" Show_Val="true" Pos="-200,-300" rotation="0" hflip="1" vflip="1" label="Resistor-8" idLabPos="-16,-24" labelrot="0" valLabPos="-18,8" valLabRot="0" Resistance="220 Ω" />
+
+<item itemtype="Led" CircId="LED8" mainComp="false" Show_id="true" Show_Val="false" Pos="-80,-300" rotation="0" hflip="1" vflip="1" label="LED8" idLabPos="-16,-24" labelrot="0" valLabPos="0,0" valLabRot="0" Color="Red" Grounded="false" Threshold="2.4 V" MaxCurrent="0.03 A" Resistance="0.6 Ω" />
+
+<item itemtype="Ground" CircId="Ground-led8" mainComp="false" Show_id="false" Show_Val="false" Pos="20,-284" rotation="0" hflip="1" vflip="1" label="Ground-led8" idLabPos="-16,-24" labelrot="0" valLabPos="0,0" valLabRot="0" />
+
+<item itemtype="Connector" uid="Connector-led-src-7" startpinid="Uno-1-13" endpinid="Resistor-8-lPin" pointList="-612,-296,-320,-296,-320,-300,-216,-300" />
+
+<item itemtype="Connector" uid="Connector-led-mid-7" startpinid="Resistor-8-rPin" endpinid="LED8-lPin" pointList="-184,-300,-96,-300" />
+
+<item itemtype="Connector" uid="Connector-led-gnd-7" startpinid="LED8-rPin" endpinid="Ground-led8-Gnd" pointList="-64,-300,20,-300,20,-284" />
+
+
+</circuit>

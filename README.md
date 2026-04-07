@@ -23,6 +23,16 @@
 - `deliverables/wokwi-simulations/README.md` - пошаговая инструкция
 - `scripts/build_wokwi_simulations.py` - пересборка схем и копий скетчей из `labs/` после правок
 
+### Готовые проекты для SimulIDE
+
+- `deliverables/simulide-projects/` - готовые папки с проектами `SimulIDE`
+- `deliverables/simulide-projects/README.md` - что именно открывать и как запускать
+- в каждой подпапке лежат:
+  - `*.sim1` - готовая схема
+  - `*.hex` - уже привязанная прошивка
+  - `*.ino` - исходный код
+- `scripts/build_simulide_projects.py` - пересборка пакета SimulIDE из актуальных скетчей и HEX-файлов
+
 ### Готовый пакет для Proteus 8.13 и Arduino IDE
 
 - `deliverables/proteus-arduino/arduino-ide` - готовые папки скетчей для открытия в Arduino IDE
