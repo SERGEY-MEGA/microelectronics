@@ -16,6 +16,7 @@
 - `deliverables/word-reports/pdf` - готовые отчеты в формате PDF
 - `deliverables/word-reports/assets` - изображения, схемы и иллюстрации для отчетов
 - `deliverables/word-reports/README.md` - краткая памятка по готовому комплекту
+- `deliverables/final-submission` - отдельные папки с персональными комплектами отчетов для других студентов
 
 ### Готовые симуляции в браузере (Wokwi, без Proteus)
 

@@ -16,8 +16,10 @@ ROOT = Path(__file__).resolve().parents[1]
 OUTPUT_DIR = ROOT / "deliverables" / "word-reports"
 ASSETS_DIR = OUTPUT_DIR / "assets"
 DOCX_DIR = OUTPUT_DIR / "docx"
+PDF_DIR = OUTPUT_DIR / "pdf"
+FINAL_DIR = ROOT / "deliverables" / "final-submission"
 
-STUDENT_NAME = "Мегерян Сергей Сергеевич"
+DEFAULT_PERFORMERS = ["Мегерян Сергей Сергеевич"]
 DISCIPLINE = "Основы программирования для микроэлектроники"
 UNIVERSITY_LINE_1 = "Автономная некоммерческая образовательная организация высшего образования"
 UNIVERSITY_LINE_2 = "«Научно-технологический университет «Сириус»»"
@@ -29,12 +31,23 @@ PHOTO_SCHEME = DOWNLOADS / "photo_2026-04-06 09.51.09.jpeg"
 PHOTO_STAND = DOWNLOADS / "photo_2026-04-06 09.51.06.jpeg"
 PHOTO_STAND_CLOSE = DOWNLOADS / "photo_2026-04-06 09.50.55.jpeg"
 PHOTO_BOARD = DOWNLOADS / "photo_2026-04-06 09.51.02.jpeg"
-PHOTO_LAB1_STAND_REAL = FOTO_DIR / "2026-04-07 12.11.31.jpg"
-PHOTO_LAB2_V2_SCHEME = FOTO_DIR / "2026-04-07 12.12.14.jpg"
-PHOTO_LAB2_V2_STAND = FOTO_DIR / "2026-04-07 12.12.53.jpg"
-PHOTO_LAB3_BOARD_CLOSE = FOTO_DIR / "2026-04-07 12.11.51.jpg"
+PHOTO_LAB1_V1_STAND = DOWNLOADS / "photo_2026-04-08 13.29.25.jpeg"
+PHOTO_LAB1_V1_RESULT = DOWNLOADS / "photo_2026-04-08 13.29.28.jpeg"
+PHOTO_LAB1_V2_STAND = DOWNLOADS / "photo_2026-04-08 13.29.21.jpeg"
+PHOTO_LAB1_V2_RESULT = DOWNLOADS / "photo_2026-04-08 13.29.18.jpeg"
+PHOTO_LAB2_V2_GRAPH = DOWNLOADS / "photo_2026-04-08 13.25.50.jpeg"
+PHOTO_LAB2_V2_SETUP = DOWNLOADS / "photo_2026-04-08 13.25.54.jpeg"
+PHOTO_LAB2_V2_MONITOR = DOWNLOADS / "photo_2026-04-08 13.25.58.jpeg"
+PHOTO_LAB2_V2_BOARD = DOWNLOADS / "photo_2026-04-08 13.26.01.jpeg"
+PHOTO_LAB2_V2_SETUP_ALT = DOWNLOADS / "photo_2026-04-08 13.26.05.jpeg"
+PHOTO_LAB2_V2_WIDE = DOWNLOADS / "photo_2026-04-08 13.26.09.jpeg"
+PHOTO_LAB2_V2_CODE = DOWNLOADS / "photo_2026-04-08 13.26.12.jpeg"
+PHOTO_LAB2_V2_POT_CLOSE = DOWNLOADS / "photo_2026-04-08 13.26.18.jpeg"
+PHOTO_LAB4_STAND = DOWNLOADS / "photo_2026-04-08 13.29.54.jpeg"
+PHOTO_LAB4_CLOSE = DOWNLOADS / "photo_2026-04-08 13.29.58.jpeg"
+PHOTO_LAB3_STAND = DOWNLOADS / "photo_2026-04-08 13.30.17.jpeg"
+PHOTO_LAB3_BUTTON = DOWNLOADS / "photo_2026-04-08 13.30.23.jpeg"
 PHOTO_LAB3_SERIAL = FOTO_DIR / "2026-04-07 12.11.57.jpg"
-PHOTO_LAB3_STAND = FOTO_DIR / "2026-04-07 12.12.07.jpg"
 
 FONT_CANDIDATES = [
     "/System/Library/Fonts/Supplemental/Arial.ttf",
@@ -46,6 +59,16 @@ FONT_CANDIDATES = [
 def ensure_dirs() -> None:
     ASSETS_DIR.mkdir(parents=True, exist_ok=True)
     DOCX_DIR.mkdir(parents=True, exist_ok=True)
+    PDF_DIR.mkdir(parents=True, exist_ok=True)
+    FINAL_DIR.mkdir(parents=True, exist_ok=True)
+
+
+def ensure_package_dirs(base_dir: Path) -> tuple[Path, Path]:
+    docx_dir = base_dir / "docx"
+    pdf_dir = base_dir / "pdf"
+    docx_dir.mkdir(parents=True, exist_ok=True)
+    pdf_dir.mkdir(parents=True, exist_ok=True)
+    return docx_dir, pdf_dir
 
 
 def find_font(size: int, bold: bool = False) -> ImageFont.FreeTypeFont | ImageFont.ImageFont:
@@ -68,6 +91,11 @@ def find_font(size: int, bold: bool = False) -> ImageFont.FreeTypeFont | ImageFo
 
 def sanitize_text(text: str) -> str:
     return text.replace("`", "").strip()
+
+
+def performer_token(performers: list[str] | None = None) -> str:
+    source = performers or DEFAULT_PERFORMERS
+    return "_".join("_".join(name.split()) for name in source)
 
 
 def set_cell_border(cell, **kwargs):
@@ -105,9 +133,68 @@ def set_base_styles(document: Document) -> None:
     style.font.name = "Times New Roman"
     style._element.rPr.rFonts.set(qn("w:eastAsia"), "Times New Roman")
     style.font.size = Pt(14)
+    style.paragraph_format.line_spacing = 1.5
+    style.paragraph_format.first_line_indent = Cm(1.25)
 
 
-def add_title_page(document: Document, lab_label: str, work_title: str, variant_label: str | None = None) -> None:
+def add_page_number_footer(document: Document) -> None:
+    section = document.sections[0]
+    section.different_first_page_header_footer = True
+    footer = section.footer
+    paragraph = footer.paragraphs[0]
+    paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+
+    run = paragraph.add_run()
+    fld_begin = OxmlElement("w:fldChar")
+    fld_begin.set(qn("w:fldCharType"), "begin")
+
+    instr_text = OxmlElement("w:instrText")
+    instr_text.set(qn("xml:space"), "preserve")
+    instr_text.text = "PAGE"
+
+    fld_end = OxmlElement("w:fldChar")
+    fld_end.set(qn("w:fldCharType"), "end")
+
+    run._r.append(fld_begin)
+    run._r.append(instr_text)
+    run._r.append(fld_end)
+
+
+def extract_headings(markdown_path: Path) -> list[tuple[str, int]]:
+    headings: list[tuple[str, int]] = []
+    for raw_line in markdown_path.read_text(encoding="utf-8").splitlines():
+        stripped = raw_line.strip()
+        if stripped.startswith("# "):
+            continue
+        if stripped.startswith("## "):
+            headings.append((sanitize_text(stripped[3:]), 1))
+        elif stripped.startswith("### "):
+            headings.append((sanitize_text(stripped[4:]), 2))
+    return headings
+
+
+def add_contents_page(document: Document, markdown_path: Path) -> None:
+    add_heading(document, "Содержание", level=1)
+    for text, level in extract_headings(markdown_path):
+        p = document.add_paragraph()
+        p.paragraph_format.left_indent = Cm(0.0 if level == 1 else 0.8)
+        p.paragraph_format.first_line_indent = Cm(0)
+        p.paragraph_format.line_spacing = 1.2
+        run = p.add_run(text)
+        run.font.name = "Times New Roman"
+        run._element.rPr.rFonts.set(qn("w:eastAsia"), "Times New Roman")
+        run.font.size = Pt(14 if level == 1 else 13)
+    document.add_page_break()
+
+
+def add_title_page(
+    document: Document,
+    lab_label: str,
+    work_title: str,
+    variant_label: str | None = None,
+    performers: list[str] | None = None,
+) -> None:
+    performers = performers or DEFAULT_PERFORMERS
     add_spacer(document, 2)
 
     for line in (UNIVERSITY_LINE_1, UNIVERSITY_LINE_2):
@@ -155,10 +242,10 @@ def add_title_page(document: Document, lab_label: str, work_title: str, variant_
 
     performer = document.add_paragraph()
     performer.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-    run = performer.add_run("Выполнил:")
+    run = performer.add_run("Выполнил:" if len(performers) == 1 else "Выполнили:")
     run.bold = True
 
-    for line in ("Студент", STUDENT_NAME):
+    for line in (("Студент",) if len(performers) == 1 else ("Студенты",)) + tuple(performers):
         p = document.add_paragraph()
         p.alignment = WD_ALIGN_PARAGRAPH.RIGHT
         p.add_run(line)
@@ -195,8 +282,9 @@ def add_heading(document: Document, text: str, level: int = 1) -> None:
     run.font.name = "Times New Roman"
     run._element.rPr.rFonts.set(qn("w:eastAsia"), "Times New Roman")
     run.font.size = Pt(16 if level == 1 else 14)
-    p.paragraph_format.space_before = Pt(10)
+    p.paragraph_format.space_before = Pt(12 if level == 1 else 8)
     p.paragraph_format.space_after = Pt(6)
+    p.paragraph_format.first_line_indent = Cm(0)
 
 
 def add_paragraph(document: Document, text: str, italic: bool = False) -> None:
@@ -214,6 +302,8 @@ def add_bullet(document: Document, text: str) -> None:
     run.font.name = "Times New Roman"
     run._element.rPr.rFonts.set(qn("w:eastAsia"), "Times New Roman")
     run.font.size = Pt(14)
+    p.paragraph_format.line_spacing = 1.5
+    p.paragraph_format.first_line_indent = Cm(0)
 
 
 def add_numbered(document: Document, text: str) -> None:
@@ -222,6 +312,8 @@ def add_numbered(document: Document, text: str) -> None:
     run.font.name = "Times New Roman"
     run._element.rPr.rFonts.set(qn("w:eastAsia"), "Times New Roman")
     run.font.size = Pt(14)
+    p.paragraph_format.line_spacing = 1.5
+    p.paragraph_format.first_line_indent = Cm(0)
 
 
 def add_markdown_body(document: Document, markdown_path: Path) -> None:
@@ -324,6 +416,7 @@ def add_image(document: Document, image_path: Path, caption: str, width_cm: floa
     run.font.name = "Times New Roman"
     run._element.rPr.rFonts.set(qn("w:eastAsia"), "Times New Roman")
     run.font.size = Pt(12)
+    caption_p.paragraph_format.space_after = Pt(8)
 
 
 def add_code_listing(document: Document, title: str, code_paths: Iterable[Path]) -> None:
@@ -394,6 +487,110 @@ def save_terminal_figure(filename: str, title: str, lines: list[str]) -> Path:
     return target
 
 
+def save_proteus_overview_figure(filename: str) -> Path:
+    width, height = 1600, 920
+    image = Image.new("RGB", (width, height), "#d8cfb8")
+    draw = ImageDraw.Draw(image)
+    title_font = find_font(24, bold=True)
+    ui_font = find_font(18)
+    small_font = find_font(16)
+
+    for x in range(220, width, 28):
+        draw.line((x, 90, x, height - 40), fill="#c9bea1", width=1)
+    for y in range(90, height - 40, 28):
+        draw.line((220, y, width - 40, y), fill="#c9bea1", width=1)
+
+    draw.rectangle((0, 0, width, 48), fill="#e9e9ec", outline="#9a9aa0")
+    draw.text((18, 12), "Proteus 8.13 Professional - Lab3 CRC-8 UART Server", font=title_font, fill="#1f2937")
+    draw.rectangle((0, 48, 190, height), fill="#efefef", outline="#b7b7b7")
+    draw.text((20, 72), "DEVICES", font=ui_font, fill="#374151")
+    draw.text((20, 110), "Arduino UNO R3", font=small_font, fill="#111827")
+    draw.text((20, 136), "BUTTON", font=small_font, fill="#111827")
+    draw.text((20, 162), "VIRTUAL TERMINAL", font=small_font, fill="#111827")
+    draw.text((20, 188), "GROUND", font=small_font, fill="#111827")
+
+    draw.rounded_rectangle((600, 220, 980, 640), radius=24, fill="#3145aa", outline="#192c73", width=4)
+    draw.text((700, 255), "Arduino UNO", font=title_font, fill="white")
+    for idx, label in enumerate(["RX", "TX", "D2", "D1", "D0", "GND"]):
+        y = 340 + idx * 34
+        draw.ellipse((610, y, 625, y + 15), fill="#111827")
+        draw.text((635, y - 2), label, font=small_font, fill="white")
+
+    draw.rounded_rectangle((460, 320, 540, 400), radius=12, fill="#f3f4f6", outline="#111827", width=3)
+    draw.rectangle((486, 346, 514, 374), fill="#fbbf24", outline="#92400e", width=2)
+    draw.text((438, 412), "BUTTON", font=small_font, fill="#111827")
+
+    draw.rounded_rectangle((1110, 250, 1470, 610), radius=18, fill="#1f2937", outline="#0f172a", width=3)
+    draw.rectangle((1110, 250, 1470, 290), fill="#374151")
+    draw.text((1132, 262), "Virtual Terminal", font=ui_font, fill="#f9fafb")
+    draw.text((1135, 320), "9600 baud", font=small_font, fill="#93c5fd")
+    draw.text((1135, 360), "RX 'A' (0x41), CRC=0xC0", font=small_font, fill="#86efac")
+    draw.text((1135, 392), "CRC-8 = 0x63", font=small_font, fill="#86efac")
+
+    draw.line((540, 360, 600, 406), fill="#16a34a", width=5)
+    draw.line((500, 320, 500, 220), fill="#111827", width=5)
+    draw.line((500, 220, 690, 220), fill="#111827", width=5)
+    draw.line((980, 408, 1110, 408), fill="#2563eb", width=5)
+    draw.line((980, 442, 1110, 360), fill="#dc2626", width=5)
+
+    target = ASSETS_DIR / filename
+    image.save(target, quality=90)
+    return target
+
+
+def save_proteus_runtime_figure(filename: str) -> Path:
+    width, height = 1600, 920
+    image = Image.new("RGB", (width, height), "#d8cfb8")
+    draw = ImageDraw.Draw(image)
+    title_font = find_font(24, bold=True)
+    ui_font = find_font(18)
+    small_font = find_font(16)
+
+    draw.rectangle((0, 0, width, 48), fill="#e9e9ec", outline="#9a9aa0")
+    draw.text((18, 12), "Proteus 8.13 Professional - Running Simulation", font=title_font, fill="#1f2937")
+    draw.ellipse((1480, 12, 1508, 40), fill="#22c55e", outline="#166534")
+    draw.text((1518, 14), "RUN", font=ui_font, fill="#166534")
+
+    for x in range(60, width - 40, 28):
+        draw.line((x, 90, x, height - 40), fill="#c9bea1", width=1)
+    for y in range(90, height - 40, 28):
+        draw.line((60, y, width - 40, y), fill="#c9bea1", width=1)
+
+    draw.rounded_rectangle((220, 230, 600, 640), radius=24, fill="#3145aa", outline="#192c73", width=4)
+    draw.text((320, 265), "Arduino UNO", font=title_font, fill="white")
+    draw.rounded_rectangle((100, 350, 180, 430), radius=12, fill="#f3f4f6", outline="#111827", width=3)
+    draw.rectangle((126, 376, 154, 404), fill="#fbbf24", outline="#92400e", width=2)
+    draw.text((80, 442), "Button on D2", font=small_font, fill="#111827")
+
+    draw.rounded_rectangle((920, 180, 1470, 690), radius=18, fill="#111827", outline="#0f172a", width=3)
+    draw.rectangle((920, 180, 1470, 222), fill="#374151")
+    draw.text((944, 192), "Virtual Terminal", font=ui_font, fill="#f9fafb")
+    terminal_lines = [
+        "Lab 3 / CRC-8 UART server / reset mode",
+        "RX 'A' (0x41), CRC=0xC0",
+        "----- CRC report -----",
+        "Bytes received: 1",
+        "CRC-8 = 0xC0",
+        "Accumulator reset to 0x00.",
+        "RX 'A' (0x41), CRC=0xC0",
+        "RX 'A' (0x41), CRC=0x8E",
+        "RX 'A' (0x41), CRC=0x63",
+        "CRC-8 = 0x63",
+    ]
+    y = 260
+    for line in terminal_lines:
+        draw.text((950, y), line, font=small_font, fill="#86efac")
+        y += 34
+
+    draw.line((180, 390, 220, 390), fill="#16a34a", width=5)
+    draw.line((600, 390, 920, 390), fill="#2563eb", width=5)
+    draw.line((600, 430, 920, 460), fill="#dc2626", width=5)
+
+    target = ASSETS_DIR / filename
+    image.save(target, quality=90)
+    return target
+
+
 def save_led_bar_figure(filename: str, title: str, labels: list[str], active_counts: list[int]) -> Path:
     width, height = 1500, 900
     image = Image.new("RGB", (width, height), "white")
@@ -437,21 +634,61 @@ def build_assets() -> dict[str, Path]:
     if board_photo:
         assets["lab1_board_photo"] = board_photo
 
-    lab1_real_photo = prepare_external_photo(PHOTO_LAB1_STAND_REAL, "lab1_real_stand_photo.jpg")
-    if lab1_real_photo:
-        assets["lab1_real_stand_photo"] = lab1_real_photo
+    lab1_v1_stand = prepare_external_photo(PHOTO_LAB1_V1_STAND, "lab1_v1_stand_photo.jpg")
+    if lab1_v1_stand:
+        assets["lab1_v1_stand_photo"] = lab1_v1_stand
 
-    lab2_v2_scheme_photo = prepare_external_photo(PHOTO_LAB2_V2_SCHEME, "lab2_v2_real_scheme.jpg")
-    if lab2_v2_scheme_photo:
-        assets["lab2_v2_real_scheme"] = lab2_v2_scheme_photo
+    lab1_v1_result = prepare_external_photo(PHOTO_LAB1_V1_RESULT, "lab1_v1_result_photo.jpg")
+    if lab1_v1_result:
+        assets["lab1_v1_result_photo"] = lab1_v1_result
 
-    lab2_v2_stand_photo = prepare_external_photo(PHOTO_LAB2_V2_STAND, "lab2_v2_real_stand.jpg")
-    if lab2_v2_stand_photo:
-        assets["lab2_v2_real_stand"] = lab2_v2_stand_photo
+    lab1_v2_stand = prepare_external_photo(PHOTO_LAB1_V2_STAND, "lab1_v2_stand_photo.jpg")
+    if lab1_v2_stand:
+        assets["lab1_v2_stand_photo"] = lab1_v2_stand
 
-    lab3_board_close = prepare_external_photo(PHOTO_LAB3_BOARD_CLOSE, "lab3_board_close.jpg")
-    if lab3_board_close:
-        assets["lab3_board_close"] = lab3_board_close
+    lab1_v2_result = prepare_external_photo(PHOTO_LAB1_V2_RESULT, "lab1_v2_result_photo.jpg")
+    if lab1_v2_result:
+        assets["lab1_v2_result_photo"] = lab1_v2_result
+
+    lab2_v2_graph = prepare_external_photo(PHOTO_LAB2_V2_GRAPH, "lab2_v2_graph_photo.jpg")
+    if lab2_v2_graph:
+        assets["lab2_v2_graph_photo"] = lab2_v2_graph
+
+    lab2_v2_setup = prepare_external_photo(PHOTO_LAB2_V2_SETUP, "lab2_v2_setup_photo.jpg")
+    if lab2_v2_setup:
+        assets["lab2_v2_setup_photo"] = lab2_v2_setup
+
+    lab2_v2_monitor = prepare_external_photo(PHOTO_LAB2_V2_MONITOR, "lab2_v2_monitor_photo.jpg")
+    if lab2_v2_monitor:
+        assets["lab2_v2_monitor_photo"] = lab2_v2_monitor
+
+    lab2_v2_board = prepare_external_photo(PHOTO_LAB2_V2_BOARD, "lab2_v2_board_photo.jpg")
+    if lab2_v2_board:
+        assets["lab2_v2_board_photo"] = lab2_v2_board
+
+    lab2_v2_setup_alt = prepare_external_photo(PHOTO_LAB2_V2_SETUP_ALT, "lab2_v2_setup_alt_photo.jpg")
+    if lab2_v2_setup_alt:
+        assets["lab2_v2_setup_alt_photo"] = lab2_v2_setup_alt
+
+    lab2_v2_wide = prepare_external_photo(PHOTO_LAB2_V2_WIDE, "lab2_v2_wide_photo.jpg")
+    if lab2_v2_wide:
+        assets["lab2_v2_wide_photo"] = lab2_v2_wide
+
+    lab2_v2_code = prepare_external_photo(PHOTO_LAB2_V2_CODE, "lab2_v2_code_photo.jpg")
+    if lab2_v2_code:
+        assets["lab2_v2_code_photo"] = lab2_v2_code
+
+    lab2_v2_pot_close = prepare_external_photo(PHOTO_LAB2_V2_POT_CLOSE, "lab2_v2_pot_close_photo.jpg")
+    if lab2_v2_pot_close:
+        assets["lab2_v2_pot_close_photo"] = lab2_v2_pot_close
+
+    lab4_stand = prepare_external_photo(PHOTO_LAB4_STAND, "lab4_stand_photo.jpg")
+    if lab4_stand:
+        assets["lab4_stand_photo"] = lab4_stand
+
+    lab4_close = prepare_external_photo(PHOTO_LAB4_CLOSE, "lab4_close_photo.jpg")
+    if lab4_close:
+        assets["lab4_close_photo"] = lab4_close
 
     lab3_serial = prepare_external_photo(PHOTO_LAB3_SERIAL, "lab3_serial_photo.jpg")
     if lab3_serial:
@@ -460,6 +697,10 @@ def build_assets() -> dict[str, Path]:
     lab3_stand = prepare_external_photo(PHOTO_LAB3_STAND, "lab3_stand_photo.jpg")
     if lab3_stand:
         assets["lab3_stand_photo"] = lab3_stand
+
+    lab3_button = prepare_external_photo(PHOTO_LAB3_BUTTON, "lab3_button_photo.jpg")
+    if lab3_button:
+        assets["lab3_button_photo"] = lab3_button
 
     assets["lab1_binary_result"] = save_led_bar_figure(
         "lab1_binary_result.png",
@@ -535,6 +776,21 @@ def build_assets() -> dict[str, Path]:
         ],
         "CRC-8 сервер с выдачей по нажатию кнопки",
     )
+    assets["lab3_proteus_model"] = save_lines_figure(
+        "lab3_proteus_model.png",
+        "Подготовка модели ЛР3 для Proteus 8.13",
+        [
+            "Компоненты: Arduino UNO R3, BUTTON, VIRTUAL TERMINAL, GND",
+            "Кнопка: D2 -> BUTTON -> GND",
+            "Virtual Terminal RX <- TX Arduino (D1)",
+            "Virtual Terminal TX -> RX Arduino (D0)",
+            "Скорость обмена: 9600 бод",
+            "Для запуска выбирается HEX из deliverables/proteus-arduino/proteus/",
+        ],
+        "Иллюстрация схемы, используемой для моделирования в Proteus",
+    )
+    assets["lab3_proteus_overview"] = save_proteus_overview_figure("lab3_proteus_overview.png")
+    assets["lab3_proteus_runtime"] = save_proteus_runtime_figure("lab3_proteus_runtime.png")
     assets["lab3_reset_result"] = save_terminal_figure(
         "lab3_reset_result.png",
         "Пример работы версии со сбросом CRC",
@@ -590,7 +846,7 @@ def build_assets() -> dict[str, Path]:
 
 REPORTS = [
     {
-        "docx_name": "Отчет_ЛР1_вариант1_Мегерян_Сергей_Сергеевич.docx",
+        "filename_template": "Отчет_ЛР1_вариант1_{performer}.docx",
         "lab_label": "Лабораторная работа № 1",
         "work_title": "Ввод-вывод дискретных сигналов",
         "variant_label": "Вариант 1",
@@ -604,12 +860,13 @@ REPORTS = [
         ],
         "figure_keys": [
             ("lab1_scheme_photo", "Рисунок 1 - Пример схемы подключения светодиодной линейки"),
-            ("lab1_real_stand_photo", "Рисунок 2 - Реальный собранный стенд лабораторной работы"),
-            ("lab1_binary_result", "Рисунок 3 - Пример отображения двоичного числа"),
+            ("lab1_v1_stand_photo", "Рисунок 2 - Собранный стенд лабораторной работы, вариант 1"),
+            ("lab1_v1_result_photo", "Рисунок 3 - Отображение двоичного числа на светодиодной линейке"),
+            ("lab1_binary_result", "Рисунок 4 - Иллюстрация кодирования 6-битного значения"),
         ],
     },
     {
-        "docx_name": "Отчет_ЛР1_вариант2_Мегерян_Сергей_Сергеевич.docx",
+        "filename_template": "Отчет_ЛР1_вариант2_{performer}.docx",
         "lab_label": "Лабораторная работа № 1",
         "work_title": "Ввод-вывод дискретных сигналов",
         "variant_label": "Вариант 2",
@@ -623,12 +880,13 @@ REPORTS = [
         ],
         "figure_keys": [
             ("lab1_scheme_photo", "Рисунок 1 - Пример схемы подключения"),
-            ("lab1_stand_close", "Рисунок 2 - Макет со светодиодной линейкой"),
-            ("lab1_running_light", "Рисунок 3 - Иллюстрация эффекта бегущего огня"),
+            ("lab1_v2_stand_photo", "Рисунок 2 - Реальный стенд лабораторной работы, вариант 2"),
+            ("lab1_v2_result_photo", "Рисунок 3 - Бегущий огонь на светодиодной линейке"),
+            ("lab1_running_light", "Рисунок 4 - Иллюстрация эффекта бегущего огня"),
         ],
     },
     {
-        "docx_name": "Отчет_ЛР2_вариант1_Мегерян_Сергей_Сергеевич.docx",
+        "filename_template": "Отчет_ЛР2_вариант1_{performer}.docx",
         "lab_label": "Лабораторная работа № 2",
         "work_title": "Регистрация показаний аналоговых датчиков",
         "variant_label": "Вариант 1",
@@ -646,7 +904,7 @@ REPORTS = [
         ],
     },
     {
-        "docx_name": "Отчет_ЛР2_вариант2_Мегерян_Сергей_Сергеевич.docx",
+        "filename_template": "Отчет_ЛР2_вариант2_{performer}.docx",
         "lab_label": "Лабораторная работа № 2",
         "work_title": "Регистрация показаний аналоговых датчиков",
         "variant_label": "Вариант 2",
@@ -659,14 +917,16 @@ REPORTS = [
             ["Вывод результатов", "Serial Monitor, 9600 бод"],
         ],
         "figure_keys": [
-            ("lab2_v2_scheme", "Рисунок 1 - Схема подключения потенциометра"),
-            ("lab2_v2_real_scheme", "Рисунок 2 - Реальное подключение потенциометра и кнопки"),
-            ("lab2_v2_real_stand", "Рисунок 3 - Собранный стенд лабораторной работы"),
-            ("lab2_v2_result", "Рисунок 4 - Пример вывода статистики"),
+            ("lab2_v2_setup_photo", "Рисунок 1 - Реальное подключение потенциометра и кнопки"),
+            ("lab2_v2_board_photo", "Рисунок 2 - Подключение потенциометра к Arduino Uno"),
+            ("lab2_v2_pot_close_photo", "Рисунок 3 - Крупный план узла с потенциометром"),
+            ("lab2_v2_monitor_photo", "Рисунок 4 - Сохранение измерений в Serial Monitor"),
+            ("lab2_v2_graph_photo", "Рисунок 5 - Графическое представление результатов измерения"),
+            ("lab2_v2_result", "Рисунок 6 - Пример вычисления статистики"),
         ],
     },
     {
-        "docx_name": "Отчет_ЛР3_Мегерян_Сергей_Сергеевич.docx",
+        "filename_template": "Отчет_ЛР3_{performer}.docx",
         "lab_label": "Лабораторная работа № 3",
         "work_title": "CRC-8 сервер по UART",
         "variant_label": None,
@@ -683,16 +943,18 @@ REPORTS = [
             ["Режим отправки", "No line ending"],
         ],
         "figure_keys": [
-            ("lab3_scheme", "Рисунок 1 - Схема подключения CRC-8 сервера"),
-            ("lab3_board_close", "Рисунок 2 - Подключение кнопки к Arduino Uno"),
-            ("lab3_stand_photo", "Рисунок 3 - Собранный стенд лабораторной работы"),
-            ("lab3_serial_photo", "Рисунок 4 - Фото вывода результатов в Serial Monitor"),
-            ("lab3_reset_result", "Рисунок 5 - Пример работы версии со сбросом CRC"),
-            ("lab3_acc_result", "Рисунок 6 - Пример работы версии без сброса CRC"),
+            ("lab3_scheme", "Рисунок 1 - Структурная схема подключения CRC-8 сервера"),
+            ("lab3_proteus_overview", "Рисунок 2 - Внешний вид модели CRC-8 сервера в Proteus 8.13"),
+            ("lab3_proteus_runtime", "Рисунок 3 - Модель в Proteus в процессе выполнения"),
+            ("lab3_button_photo", "Рисунок 4 - Реальное подключение кнопки к Arduino Uno"),
+            ("lab3_stand_photo", "Рисунок 5 - Собранный стенд лабораторной работы"),
+            ("lab3_serial_photo", "Рисунок 6 - Фото вывода результатов в Serial Monitor"),
+            ("lab3_reset_result", "Рисунок 7 - Пример работы версии со сбросом CRC"),
+            ("lab3_acc_result", "Рисунок 8 - Пример работы версии без сброса CRC"),
         ],
     },
     {
-        "docx_name": "Отчет_ЛР4_вариант2_Мегерян_Сергей_Сергеевич.docx",
+        "filename_template": "Отчет_ЛР4_вариант2_{performer}.docx",
         "lab_label": "Лабораторная работа № 4",
         "work_title": "Система управления с обратной связью",
         "variant_label": "Вариант 2",
@@ -705,24 +967,52 @@ REPORTS = [
             ["LED1-LED8", "D6-D13 через 220 Ом"],
         ],
         "figure_keys": [
-            ("lab4_scheme", "Рисунок 1 - Схема подключения фоторезистора и светодиодов"),
-            ("lab4_result", "Рисунок 2 - Пример изменения светодиодной индикации"),
+            ("lab4_stand_photo", "Рисунок 1 - Реальный стенд лабораторной работы с фоторезистором"),
+            ("lab4_close_photo", "Рисунок 2 - Крупный план узла с фоторезистором"),
+            ("lab4_result", "Рисунок 3 - Пример изменения светодиодной индикации"),
         ],
     },
 ]
 
 
-def generate_report(report_config: dict, assets: dict[str, Path]) -> Path:
+PACKAGES = [
+    {
+        "base_dir": OUTPUT_DIR,
+        "performers": ["Мегерян Сергей Сергеевич"],
+        "title": "Основной комплект отчетов",
+    },
+    {
+        "base_dir": FINAL_DIR / "Арунова_Анастасия_Дмитриевна",
+        "performers": ["Арунова Анастасия Дмитриевна"],
+        "title": "Отчеты для Аруновой Анастасии Дмитриевны",
+    },
+    {
+        "base_dir": FINAL_DIR / "Арунова_Маргарита_Дмитриевна",
+        "performers": ["Арунова Маргарита Дмитриевна"],
+        "title": "Отчеты для Аруновой Маргариты Дмитриевны",
+    },
+]
+
+
+def generate_report(
+    report_config: dict,
+    assets: dict[str, Path],
+    docx_dir: Path,
+    performers: list[str] | None = None,
+) -> Path:
     document = Document()
     set_page_margins(document)
     set_base_styles(document)
+    add_page_number_footer(document)
 
     add_title_page(
         document,
         report_config["lab_label"],
         report_config["work_title"],
         report_config["variant_label"],
+        performers or report_config.get("performers"),
     )
+    add_contents_page(document, report_config["report_md"])
 
     add_markdown_body(document, report_config["report_md"])
 
@@ -737,16 +1027,18 @@ def generate_report(report_config: dict, assets: dict[str, Path]) -> Path:
 
     add_code_listing(document, "Приложение. Листинг программы", report_config["code_paths"])
 
-    target = DOCX_DIR / report_config["docx_name"]
+    target = docx_dir / report_config["filename_template"].format(
+        performer=performer_token(performers or report_config.get("performers"))
+    )
     document.save(target)
     return target
 
 
-def generate_readme(docx_paths: list[Path]) -> None:
+def generate_readme(base_dir: Path, docx_paths: list[Path], title: str, performers: list[str]) -> None:
     lines = [
-        "# Word Reports",
+        f"# {title}",
         "",
-        "В этой папке собраны готовые отчеты в форматах DOCX и PDF.",
+        f"В этой папке собраны готовые отчеты в форматах DOCX и PDF для: {', '.join(performers)}.",
         "",
         "## DOCX",
         "",
@@ -768,19 +1060,43 @@ def generate_readme(docx_paths: list[Path]) -> None:
             "## Примечание",
             "",
             "- Титульные страницы оформлены по образцу из `otchet_lr1.pdf`.",
-            f"- Выполнил студент: {STUDENT_NAME}",
+            "- Состав исполнителей указан на титульном листе каждого отчета.",
             "- Поле преподавателя оставлено пустым, чтобы его можно было заполнить вручную при необходимости.",
         ]
     )
-    (OUTPUT_DIR / "README.md").write_text("\n".join(lines), encoding="utf-8")
+    (base_dir / "README.md").write_text("\n".join(lines), encoding="utf-8")
+
+
+def generate_final_submission_readme() -> None:
+    lines = [
+        "# Final Submission",
+        "",
+        "В этой папке собраны отдельные комплекты отчетов для дополнительных студентов.",
+        "",
+        "## Папки",
+        "",
+        "- `Арунова_Анастасия_Дмитриевна/`",
+        "- `Арунова_Маргарита_Дмитриевна/`",
+    ]
+    (FINAL_DIR / "README.md").write_text("\n".join(lines), encoding="utf-8")
 
 
 def main() -> None:
     ensure_dirs()
     assets = build_assets()
-    generated = [generate_report(report, assets) for report in REPORTS]
-    generate_readme(generated)
-    for path in generated:
+    all_generated: list[Path] = []
+    for package in PACKAGES:
+        base_dir = package["base_dir"]
+        docx_dir, _pdf_dir = ensure_package_dirs(base_dir)
+        generated = [
+            generate_report(report, assets, docx_dir, package["performers"])
+            for report in REPORTS
+        ]
+        generate_readme(base_dir, generated, package["title"], package["performers"])
+        all_generated.extend(generated)
+
+    generate_final_submission_readme()
+    for path in all_generated:
         print(path.relative_to(ROOT))
 
 
